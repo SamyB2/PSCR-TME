@@ -3,13 +3,15 @@
 
 namespace pr {
     class String {
-        const char * data;
 
         public :
-            String (const char * data);
+        const char * data;
+            String (const char * data="");
+            String (const String & s);
             ~String() {
                 delete [] data;
             }
+            String& operator=(const String & s);    
     };
 
     size_t length(const char * str);

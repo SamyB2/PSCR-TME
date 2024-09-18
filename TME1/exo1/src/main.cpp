@@ -1,4 +1,5 @@
 #include "List.h"
+#include "String.h"
 #include <string>
 #include <iostream>
 #include <cstring>
@@ -15,6 +16,15 @@ int main () {
 	// 		std::cout << "probleme !";
 	// 	}
 	// }
+	
+
+	const char * str1 = "kiky";
+	pr::String s1(str1);
+	std::cout << "s1 : " << str1 << std::endl;
+	std::cout << "length : " << pr::length(str1) << std::endl;
+	pr::String s2 = s1;
+	std::cout << "s1 : @" << ((void *) s1.data) << std::endl;
+	std::cout << "s2 : @" << ((void *) s2.data) << std::endl;
 
 	std::string abc = "abc";
 	char * str = new char [3];
