@@ -1,5 +1,6 @@
 template <typename K, typename V>
 class HashMap {
+	public:
     struct Entry {
         const K key;
         V value;
@@ -8,7 +9,6 @@ class HashMap {
     };
     typedef std::vector<std::forward_list<Entry>> buckets_t;
 	buckets_t buckets;
-	public:
 		HashMap(size_t cap): buckets(cap) {
 			buckets.reserve(cap);
 			for (int i = 0; i<cap; ++i) {

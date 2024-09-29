@@ -4,6 +4,7 @@
 #include <chrono>
 #include <vector>
 #include <forward_list>
+#include <algorithm>
 #include "hash.hpp"
 
 bool contains_w (std::vector<std::pair<std::string, int>>& vec, const std::string word) {
@@ -32,6 +33,25 @@ void print_words(HashMap<std::string,int> &h ) {
 	cout << "war iter => " << *h.get(war) << endl;
 	cout << "peace iter => " << *h.get(peace) << endl;
 	cout << "toto iter => 0"  << endl;
+}
+
+void print_first_n (std::vector<std::pair<std::string,int>>& v) {
+	auto b = v.begin();
+	for (int i = 0; i<10; ++i) {
+		std::cout << "words : " << b.base()->first
+			<< ", frequence : " << b.base()->second
+			<< std::endl;
+		b+=1;
+	}
+}
+std::vector<std::pair<std::string,int>> & get_entries(HashMap<std::string,int> &h, std::vector<std::pair<std::string,int>>& v) {
+	using namespace std;
+	for (auto b : h.buckets) {
+		for (auto x : b) {
+			v.push_back(pair<string,int>(x.key,x.value));
+		}
+	}
+	return v;
 }
 
 int main () {
@@ -72,6 +92,12 @@ int main () {
 	}
 	// print_words(v);
 	print_words(h);
+	vector<pair<string,int>> entries;
+	entries = get_entries(h, entries);
+	sort(entries.begin(), entries.end(), [] (const pair<string,int> &p1, const pair<string,int>p2) {
+		return p1.second > p2.second;
+	});
+	print_first_n(entries);
 	input.close();
 
 	cout << "Finished Parsing War and Peace" << endl;
