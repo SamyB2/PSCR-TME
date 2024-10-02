@@ -12,7 +12,7 @@ class Liste {
                 next->~Node();
                 delete next;
             }
-    }
+    };
     Node * head;
 
     public :

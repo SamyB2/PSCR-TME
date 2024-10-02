@@ -1,0 +1,7 @@
+muste have begin(), end()
+
+and for the IT, it must have : !=, ++, * 
+
+foreach (auto x : vec) -> fait des big big copies
+
+foreach (auto & x : vec) -> prend des refs plus rapide !
