@@ -5,6 +5,7 @@
 #include <vector>
 #include <forward_list>
 #include <algorithm>
+#include <assert.h>
 #include "hash.hpp"
 
 bool contains_w (std::vector<std::pair<std::string, int>>& vec, const std::string word) {
@@ -44,6 +45,7 @@ void print_first_n (std::vector<std::pair<std::string,int>>& v) {
 		b+=1;
 	}
 }
+
 std::vector<std::pair<std::string,int>> & get_entries(HashMap<std::string,int> &h, std::vector<std::pair<std::string,int>>& v) {
 	using namespace std;
 	for (auto b : h.buckets) {
@@ -69,7 +71,7 @@ int main () {
 	// une regex qui reconnait les caractères anormaux (négation des lettres)
 	regex re( R"([^a-zA-Z])");
 	std::vector<pair<string,int>> v;
-	HashMap<string,int> h(20333);	
+	HashMap<string,int> h(21333);	
 	while (input >> word) {
 		// élimine la ponctuation et les caractères spéciaux
 		word = regex_replace ( word, re, "");
@@ -91,13 +93,22 @@ int main () {
 		// }
 	}
 	// print_words(v);
-	print_words(h);
+	size_t s1 = h.size();
+	size_t s2 = h.size2();
+	assert(s1 == s2);
+	// print_words(h);
 	vector<pair<string,int>> entries;
+	vector<pair<string,int>> entries2 = h.getEntries();
 	entries = get_entries(h, entries);
 	sort(entries.begin(), entries.end(), [] (const pair<string,int> &p1, const pair<string,int>p2) {
 		return p1.second > p2.second;
 	});
+	sort(entries2.begin(), entries2.end(), [] (const pair<string,int> &p1, const pair<string,int>p2) {
+		return p1.second > p2.second;
+	});	
 	print_first_n(entries);
+	cout << endl;
+	print_first_n(entries2);
 	input.close();
 
 	cout << "Finished Parsing War and Peace" << endl;
