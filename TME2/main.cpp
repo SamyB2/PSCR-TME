@@ -4,6 +4,7 @@
 #include <chrono>
 #include <vector>
 #include <forward_list>
+#include <unordered_map>
 #include <algorithm>
 #include <assert.h>
 #include "hash.hpp"
@@ -56,7 +57,7 @@ std::vector<std::pair<std::string,int>> & get_entries(HashMap<std::string,int> &
 	return v;
 }
 
-int main () {
+int main2 () {
 	using namespace std;
 	using namespace std::chrono;
 
@@ -78,6 +79,7 @@ int main () {
 		// passe en lowercase
 		transform(word.begin(),word.end(),word.begin(),::tolower);
 		
+		// method with HashMap
 		int * res = h.get(word);
 		if (res == nullptr) {
 			int value = 1;
@@ -85,7 +87,7 @@ int main () {
 			nombre_lu++;
 		}else (*res)++;
 
-		
+		//method with vector
 		// if (!contains_w(v,word)) {
 		// 	v.push_back(pair(word,0));
 		// 	// cout << nombre_lu << " : " << word << endl;
@@ -98,18 +100,21 @@ int main () {
 	assert(s1 == s2);
 	// print_words(h);
 	vector<pair<string,int>> entries;
-	vector<pair<string,int>> entries2 = h.getEntries();
-	entries = get_entries(h, entries);
 	sort(entries.begin(), entries.end(), [] (const pair<string,int> &p1, const pair<string,int>p2) {
 		return p1.second > p2.second;
 	});
+	print_first_n(entries);
+	cout << endl;
+
+	// entries2 with HashMap
+	vector<pair<string,int>> entries2 = h.getEntries();
+	entries = get_entries(h, entries);
 	sort(entries2.begin(), entries2.end(), [] (const pair<string,int> &p1, const pair<string,int>p2) {
 		return p1.second > p2.second;
 	});	
-	print_first_n(entries);
-	cout << endl;
 	print_first_n(entries2);
 	input.close();
+
 
 	cout << "Finished Parsing War and Peace" << endl;
 
@@ -123,4 +128,60 @@ int main () {
     return 0;
 }
 
+int main () {
+	using namespace std;
+	using namespace std::chrono;
+
+	ifstream input = ifstream("WarAndPeace.txt");
+
+	auto start = steady_clock::now();
+	cout << "Parsing War and Peace" << endl;
+
+	size_t nombre_lu = 0;
+	// prochain mot lu
+	string word;
+	// une regex qui reconnait les caractères anormaux (négation des lettres)
+	regex re( R"([^a-zA-Z])");
+	unordered_map<string,int> um(20333);
+	unordered_map<string,int>::iterator end_um = um.end();
+	while (input >> word) {
+		// élimine la ponctuation et les caractères spéciaux
+		word = regex_replace ( word, re, "");
+		// passe en lowercase
+		transform(word.begin(),word.end(),word.begin(),::tolower);
+		unordered_map<string,int>::iterator i = um.find(word);
+		if (i == end_um) {
+			um.insert(pair<string,int>(word,1));
+			nombre_lu++;
+		}else i->second++;
+	}
+	input.close();
+
+	unordered_map<int, forward_list<string>> inv_um;
+	unordered_map<int, forward_list<string>>::iterator end_inv_um;
+	for ( const pair<string, int>  &x : um) {
+		auto i = inv_um.find(x.second);
+		if (i == end_inv_um) inv_um.insert(pair<int,forward_list<string>>(x.second,forward_list<string>(1,x.first)));
+		else i->second.push_front(x.first);
+	}
+
+	for (const pair<int, forward_list<string>> &x : inv_um) {
+		cout << x.first << " : [ ";
+		for (const string &w : x.second)
+			cout << w << " ";
+		cout << "]\n" << endl;
+	}
+	
+
+	cout << "Finished Parsing War and Peace" << endl;
+
+	auto end = steady_clock::now();
+    cout << "Parsing took "
+              << duration_cast<milliseconds>(end - start).count()
+              << "ms.\n";
+
+    cout << "Found a total of " << nombre_lu << " words." << endl;
+
+    return 0;
+}
 
