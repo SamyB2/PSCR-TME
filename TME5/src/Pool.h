@@ -4,21 +4,31 @@
 #include "Job.h"
 #include <vector>
 #include <thread>
-#include <semaphore>
+#include <barrier>
 
 namespace pr {
+
+void poolWorker (Queue<pr::Job> & queue, std::counting_semaphore<> &csmph) {
+    while (true) {
+        pr::Job * job = queue.pop();
+        if (job == nullptr) return;
+        job->run();
+		csmph.release();
+        delete job;
+    }
+}
 
 class Pool {
 	Queue<Job> queue;
 	std::vector<std::thread> threads;
-	std::counting_semaphore<1000000L> & csmph;
+	std::counting_semaphore<> &csmph_;
 
 public:
-	Pool(size_t qsize, std::counting_semaphore<1000000L> & s): queue(qsize), csmph(s) {}
+	Pool(size_t qsize, std::counting_semaphore<> & csmph): queue(qsize), csmph_(csmph) {}
 
 	void start (int nbthread) {
 		for (int i = 0; i<nbthread; ++i) {
-			threads.emplace_back(&poolWorker, std::ref(queue), csmph);
+			threads.emplace_back(poolWorker, std::ref(queue), std::ref(csmph_));
 		}
 	}
 
@@ -32,17 +42,9 @@ public:
 			th.join();
 		threads.clear();
 	}
-	~Pool() ;
+	~Pool(){} ;
 };
 
-void poolWorker (Queue<pr::Job> & queue, std::counting_semaphore<> &s) {
-    while (true) {
-        pr::Job * job = queue.pop();
-        if (job == nullptr) return;
-        job->run();
-		s.release();
-        delete job;
-    }
-}
+
 
 }

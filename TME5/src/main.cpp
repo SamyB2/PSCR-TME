@@ -138,7 +138,7 @@ int main () {
 	// on pose une graine basee sur la date
 	default_random_engine re(std::chrono::system_clock::now().time_since_epoch().count());
 	// definir la Scene : resolution de l'image
-	Scene scene (1000,1000);
+	Scene scene (500,500);
 	// remplir avec un peu d'aléatoire
 	fillScene(scene, re);
 	
@@ -159,8 +159,8 @@ int main () {
 	// pour chaque pixel, calculer sa couleur
 
 	size_t nb_jobs = scene.getHeight() * scene.getWidth();
-	std::counting_semaphore<1000000L> smph(nb_jobs);
-	Pool p(nb_jobs, smph);
+	std::counting_semaphore<> csmph(-nb_jobs + 1);
+	Pool p(nb_jobs, csmph);
 	p.start(2);
 	for (int x = 0; x <scene.getWidth(); ++x) {
 		for (int y = 0; y < scene.getHeight(); ++y) {
@@ -168,7 +168,7 @@ int main () {
 			p.submit(jc);
 		}
 	}
-	smph.acquire();
+	csmph.acquire();
 	p.stop();
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <mutex>
 #include <condition_variable>
+#include <cstring>
 
 namespace pr {
 
