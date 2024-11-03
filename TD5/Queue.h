@@ -25,7 +25,7 @@ class Queue {
 
     // v1
     /* 
-        -> une conodition variable et un notify_all
+        -> une conodition variable et un notify_one
         faux => on risque d'avoir des gens qui prod et cons qui dorment en mm temps
         car perte de notification
         see cas buff 10

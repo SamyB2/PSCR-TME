@@ -8,9 +8,11 @@ using namespace pr;
 
 int main () {
 	vector<string> v1;
+	v1.reserve(2);
 	v1.push_back("abc"); v1.push_back("def");
 
 	vector<string> v2;
+	v2.reserve(2);
 	v2.push_back("ghi"); v2.push_back("klm");
 
 	// sans faire de copies !
