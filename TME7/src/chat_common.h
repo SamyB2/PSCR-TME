@@ -30,15 +30,32 @@
 struct message {
   long type;
   char content[TAILLE_MESS];
-};
+}message;
 
 struct myshm {
   int read; /* nombre de messages retransmis par le serveur */
   int write; /* nombre de messages non encore retransmis par le serveur */
-  int nb; /* nombre total de messages emis */
-  sem_t sem;
+  sem_t mtx;
+  sem_t semFree;
+  sem_t semBusy;
   struct message messages[MAX_MESS];
 };
+
+struct myshm *createMyshm(char *name) {
+	int fd = shm_open("/serverID", O_CREAT | O_EXCL | O_RDWR, 0666);
+    if (fd < 0) {
+        perror("error fd");
+        exit(1);
+    }
+    ftruncate(fd, sizeof(struct myshm));
+    void *shm = mmap(0, sizeof(message), PROT_READ | PROT_WRITE, O_CREAT | O_EXCL | O_RDWR, fd, 0);
+    close(fd);
+	struct myshm* shmServ = (struct myshm *) shm;
+	sem_init(&(shmServ->mtx), 1, 1);
+	sem_init(&(shmServ->semFree), 1, MAX_MESS);
+	sem_init(&(shmServ->semBusy), 1, 0);
+	return shmServ;
+}
 
 char *getName(char *name);
 
