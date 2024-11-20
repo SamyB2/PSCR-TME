@@ -7,7 +7,10 @@
 #include <iostream>
 #include <string>
 #include <semaphore.h>
+#include <sys/mman.h>
+#include <wait.h>
 
+#include "Stack.h"
 /*
     Semaphore {
         int permits : >= 0
@@ -24,27 +27,55 @@
 
 */
 
-void pinger(sem_t *semPing, sem_t *semPong) {
-    sem_wait(semPing);
-    std::cout << "ping" << std::endl;
-    sem_post(semPong);
+
+template <typename T>
+pr::Stack<T> *openStack(const char *name) {
+    int fd = shm_open(name, O_RDWR);
+    void *smh = mmap(0, sizeof(pr::Stack<T>), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    close(fd);
+    return (pr::Stack<T> *) smh;
 }
 
-void ponger(sem_t *semPing, sem_t *semPong) {
-    sem_wait(semPong);
-    std::cout << "pong" << std::endl;
-    sem_post(semPing);
+template <typename T>
+void closeStack(pr::Stack<T> *stack) {
+    munmap(stack, sizeof(pr::Stack<T>));
 }
+
+void deleteStack(const char *name) {
+    unlink(name);
+}
+
+
+#define N 5
+
+/*
+    sem nommé pas besoin sur mem partagee
+    sem anonyme => mem partagé
+*/
 
 int main(int argc, char const *argv[]){
-    sem_t *semPing = sem_open("ping", O_CREAT | O_RDWR | O_EXCL, 0666, 1);
-    sem_t *semPong = sem_open("pong", O_CREAT | O_RDWR | O_EXCL, 0666, 0);
-    pid_t pid1 = fork();
-
-    if (!pid1) {
-        while(true) ponger(semPing, semPong);
-    }else{
-        while(true) pinger(semPing, semPong);
+    void * shm = mmap(0, sizeof(sem_t) * N,PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    sem_t *semTab = (sem_t *) shm;
+    for(int i = 0; i<N; i++) {
+        int semVal = (!i)?1:0;
+        sem_init(semTab + i, 1, semVal);
     }
+    for(int i = 0; i<N; ++i) {
+        if(!fork()) {
+            for (int k = 0; i<10; k++) {
+                sem_wait(semTab+i);
+                std::cout << "ping" << std::endl;
+                sem_post(semTab + (i + 1)%N);
+
+            }
+            munmap(shm, sizeof(sem_t) * N);
+            exit(0);
+        }
+    }
+
+    for (int i = 0; i<N; i++) wait(NULL);
+    for (int i = 0; i<N; i++) 
+        sem_destroy(semTab + i);
+    munmap(shm, sizeof(sem_t) * N);
     return 0;
 }
