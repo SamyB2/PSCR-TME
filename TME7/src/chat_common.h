@@ -41,7 +41,7 @@ struct myshm {
   struct message messages[MAX_MESS];
 };
 
-struct myshm *createMyshm(char *name) {
+struct myshm *createMyshm(const char *name) {
 	int fd = shm_open("/serverID", O_CREAT | O_EXCL | O_RDWR, 0666);
     if (fd < 0) {
         perror("error fd");
@@ -55,6 +55,13 @@ struct myshm *createMyshm(char *name) {
 	sem_init(&(shmServ->semFree), 1, MAX_MESS);
 	sem_init(&(shmServ->semBusy), 1, 0);
 	return shmServ;
+}
+
+void *openMemory(const char* name, size_t sz) {
+  int fd = shm_open(name, O_RDWR, 0666);
+  void *shm = mmap(0, sz, PROT_WRITE | PROT_READ, O_RDWR, fd, 0);
+  close(fd);
+  return shm;
 }
 
 char *getName(char *name);

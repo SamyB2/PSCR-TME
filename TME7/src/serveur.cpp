@@ -10,14 +10,14 @@
 void diffuse_message(const char *mess, std::vector<std::string> &idClients) {
     for (std::string &x : idClients) {
         std::string s("sem");
-        int fd = shm_open(x.c_str(), O_RDWR, 0666);
-        void *shm = mmap(0, sizeof(message), PROT_WRITE | PROT_READ, O_RDWR, fd, 0);
-        close(fd);
         std::string semName = x + s;
-        fd = shm_open(semName.c_str(), O_RDWR, 0666);
-        void *shm2 = mmap(0, sizeof(message), PROT_WRITE | PROT_READ, O_RDWR, fd, 0);
+
+        void *shm = openMemory(x.c_str(), sizeof(struct message));
+        void *shm2 = openMemory(semName.c_str(), sizeof(sem_t));
+
         struct message *messClient = (struct message *)shm;
         sem_t *mtx = (sem_t *)shm2;
+
         sem_wait(mtx);
         memcpy(messClient->content, mess, sizeof(char) * 1024);
         messClient->type = -1;
