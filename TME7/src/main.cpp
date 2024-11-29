@@ -19,9 +19,12 @@ void cons(pr::Stack<int> *stack) {
 }
 
 template <typename T>
-pr::Stack<T> *createStack(const char *name) {
-    int fd = shm_open(name, O_RDWR | O_CREAT | O_EXCL, 0666);
-    if (fd < 0) return NULL;
+pr::Stack<T> *createStack(const char *name) { 
+    int fd = shm_open(name, O_RDWR | O_CREAT , 0666);
+    if (fd < 0) {
+        perror("error stck");
+        exit(1);
+    }
     ftruncate(fd, sizeof(pr::Stack<T>));
     void *smh = (pr::Stack<T> *) mmap(
                                     0, sizeof(pr::Stack<T>),
@@ -49,7 +52,7 @@ int main(int argc, char const *argv[]){
     }
 
     for (int i = 0; i < M + N; i++) wait(NULL);
-    delete stack;
+    // delete stack; ???
     clean_up:
     munmap((void *) stack, sizeof(pr::Stack<int>));
     return 0;

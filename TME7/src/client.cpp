@@ -24,7 +24,11 @@ struct argSend {
 };
 
 void *createMessage(const std::string &name) {
-    int fd = shm_open(name.c_str(), O_CREAT | O_EXCL | O_RDWR, 0666);
+    int fd = shm_open(name.c_str(), O_CREAT | O_RDWR, 0666);
+    if (fd < 0) {
+        perror("error fd");
+        exit(1);
+    }
     ftruncate(fd, sizeof(struct message));
     void *res =  mmap(0, sizeof(struct message), PROT_READ | PROT_WRITE, O_CREAT | O_EXCL | O_RDWR, fd, 0);
     close(fd);
@@ -55,6 +59,10 @@ int getInput() {
 void sendMessage(struct message *send) {
     size_t sz = sizeof(struct myshm);
     void *serv_ = openMemory("/serv", sz);
+    if (serv_ == NULL) {
+        perror("error open serv");
+        exit(1);
+    }
     struct myshm *serv = (struct myshm *)serv_;
     sem_wait(&(serv->semFree));
     sem_wait(&(serv->mtx));
@@ -117,7 +125,7 @@ int main(int argc, char const *argv[]){
     std::string semName = nameRecep + "sem";
     void *recep_ = createMessage(nameRecep);
     void *send_ = createMessage(nameSend);
-    sem_t *mtx = sem_open(semName.c_str(), O_RDWR | O_CREAT | O_EXCL, 0666, 1);
+    sem_t *mtx = sem_open(semName.c_str(), O_RDWR | O_CREAT , 0666, 1);
     struct argSend argS = {(struct message *)send_, nameRecep};
     struct argRead argR = {(struct message*)recep_, mtx};
     pthread_t sender;

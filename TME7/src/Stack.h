@@ -25,7 +25,7 @@ public :
 	}
 
 	~Stack () {
-		sem_destroy(&mtx)
+		sem_destroy(&mtx);
 		sem_destroy(&semFree);
 		sem_destroy(&semBusy);
 	}
@@ -33,7 +33,7 @@ public :
 	T pop () {
 		// bloquer si vide
 		sem_wait(&semBusy);
-		sem_wait(&mtx)
+		sem_wait(&mtx);
 		T toret = tab[--sz];
 		sem_post(&mtx);
 		sem_post(&semFree);
