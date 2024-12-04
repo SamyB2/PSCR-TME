@@ -42,7 +42,7 @@ struct myshm {
 };
 
 struct myshm *createMyshm(const char *name) {
-	int fd = shm_open("/serverID", O_CREAT | O_EXCL | O_RDWR, 0666);
+	int fd = shm_open(name, O_CREAT | O_EXCL | O_RDWR, 0666);
     if (fd < 0) {
         perror("error fd");
         exit(1);
