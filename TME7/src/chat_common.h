@@ -42,14 +42,14 @@ struct myshm {
 };
 
 struct myshm *createMyshm(const char *name) {
-	int fd = shm_open(name, O_CREAT | O_EXCL | O_RDWR, 0666);
+	int fd = shm_open(name, O_CREAT | O_RDWR, 0666);
     if (fd < 0) {
         perror("error fd");
         exit(1);
     }
-    ftruncate(fd, sizeof(struct myshm));
-    void *shm = mmap(0, sizeof(message), PROT_READ | PROT_WRITE, O_CREAT | O_EXCL | O_RDWR, fd, 0);
-    close(fd);
+  ftruncate(fd, sizeof(struct myshm));
+  void *shm = mmap(0, sizeof(struct myshm), PROT_READ | PROT_WRITE, O_CREAT  | O_RDWR, fd, 0);
+  close(fd);
 	struct myshm* shmServ = (struct myshm *) shm;
 	sem_init(&(shmServ->mtx), 1, 1);
 	sem_init(&(shmServ->semFree), 1, MAX_MESS);

@@ -30,7 +30,7 @@ void *createMessage(const std::string &name) {
         exit(1);
     }
     ftruncate(fd, sizeof(struct message));
-    void *res =  mmap(0, sizeof(struct message), PROT_READ | PROT_WRITE, O_CREAT | O_EXCL | O_RDWR, fd, 0);
+    void *res =  mmap(0, sizeof(struct message), PROT_READ | PROT_WRITE, O_CREAT  | O_RDWR, fd, 0);
     close(fd);
     return res;
 }
