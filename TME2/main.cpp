@@ -57,7 +57,7 @@ std::vector<std::pair<std::string,int>> & get_entries(HashMap<std::string,int> &
 	return v;
 }
 
-int main2 () {
+int main () {
 	using namespace std;
 	using namespace std::chrono;
 
@@ -128,7 +128,7 @@ int main2 () {
     return 0;
 }
 
-int main () {
+int main2 () {
 	using namespace std;
 	using namespace std::chrono;
 

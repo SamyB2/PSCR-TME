@@ -80,7 +80,7 @@ void combat_luke(pid_t adv) {
 }
 
 
-int main3 () {
+int main () {
 	struct sigaction act;
 	sigfillset(&act.sa_mask);
 	act.sa_flags = 0;
@@ -88,11 +88,10 @@ int main3 () {
 	sigaction(SIGINT, &act, nullptr);
 
 	pid_t pid = fork();
-	if (!pid) combat_luke(getppid());
+	// if (!pid) combat_luke(getppid());
+	// else combat(pid);
+
+	if (!pid) combat(getppid());
 	else combat(pid);
-
-//	if (!pid) combat(getppid());
-//	else combat(pid);
-
 
 }
